@@ -52,7 +52,8 @@ class sw_curve():
         self.branch_points, self.sing_points = self.branch_singular_points()
 
     def branch_singular_points(self):
-        disc_poly_sym = sym.Poly(self.H_sym*self.d_y, self.y_sym).discriminant()
+        disc_poly_sym = sym.Poly(
+            self.H_sym*self.d_y, self.y_sym).discriminant()
         n, d = sym.fraction(sym.together(disc_poly_sym))
         sing_sym = sym.solve(sym.Poly(d, self.x_sym))
         sing = np.array([sing_sym[i].evalf() for i in range(len(sing_sym))])
@@ -61,15 +62,21 @@ class sw_curve():
         branch = np.roots(branch_coeffs)
         return branch, sing
 
-    def sw_diiferential(self, pt, theta, expo=False, n=0):
+    def sw_diiferential(self, pt, theta, expo=False):
         x = pt[0]
         y1 = pt[1]
         y2 = pt[2]
         if not(expo):
             dx = x * np.exp(1j * theta) / (y2 - y1)
+            dy1 = -self.dHx(x, y1) / self.dHy(x, y1) * dx
+            dy2 = -self.dHx(x, y2) / self.dHy(x, y2) * dx
         else:
+            # print(y1, y2, x, theta)
             dx = x * np.exp(1j * theta) / \
-                (np.log(y2) - np.log(y1) + 2 * np.pi * 1j)
-        dy1 = -self.dHx(x, y1) / self.dHy(x, y1) * dx
-        dy2 = -self.dHx(x, y2) / self.dHy(x, y2) * dx
+                (y2 - y1)
+            # print(dx)
+            dy1 = -self.dHx(x, np.exp(y1)) / \
+                self.dHy(x, np.exp(y1)) * dx / np.exp(y1)
+            dy2 = -self.dHx(x, np.exp(y2)) / \
+                self.dHy(x, np.exp(y2)) * dx / np.exp(y2)
         return np.array([dx, dy1, dy2])
