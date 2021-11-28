@@ -225,5 +225,5 @@ class network():
                                   self.x[i, j, k],
                                   np.exp(self.y_i[i, j, k])))
                 if i % 1000 == 0:
-                    if dt <= 0.000001:
+                    if dt <= 0.0001:
                         dt = dt*10
