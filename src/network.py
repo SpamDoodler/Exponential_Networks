@@ -28,6 +28,7 @@ class network():
         self.dt = dt
         self.steps = steps
         self.theta = theta
+        self.intersections = np.array([(0, 0)])
         # self.path_x = np.array([])
         # self.path_y_i = np.array([])
         # self.path_y_j = np.array([])
@@ -67,6 +68,8 @@ class network():
                     break
             for k in range(3):
                 self.x[0, j, k] = self.curve.branch_points[j]
+                self.intersections[0] = self.maps[k].new_index(self.x[0, j, k])
+            print(self.intersections)
 
         for j in range(len(self.curve.branch_points)):
             kappa = -1 / 2 * self.curve.d2Hy2(
@@ -153,7 +156,8 @@ class network():
         signs = np.array([[0 for k in range(3)]
                           for j in range(len(self.curve.branch_points))])
         last_index = [(0, 0), (0, 0), (0, 0)]
-        new_index = last_index
+        new_index = [(0, 0), (0, 0), (0, 0)]
+        prev_int = [999, 999, 999]
         for k in range(3):
             new_index[k] = self.maps[k].new_index(self.x[2, 0, k])
         for i in range(2, steps):
@@ -183,12 +187,25 @@ class network():
                     last_index[k] = new_index[k]
                     new_index[k] = self.maps[k].new_index(self.x[i, j, k])
                     if new_index[k] != last_index[k]:
-                        for g in range(3):
-                            intersections.append(self.maps[g].check_intersection(
-                                self.x[i - 1, j, k], self.x[i, j, k]))
-                        self.maps[k].draw_line(self.x[i - 1, j, k], self.x[i - 1, j, k])
-                        if len(intersections) != 0:
-                            print(intersections)
+                        # for g in range(3):
+                        #    intersections.append(self.maps[g].check_intersection(
+                        #        self.x[i - 1, j, k], self.x[i, j, k]))
+                        intersections.append(self.maps[k].check_intersection(
+                            self.x[i - 1, j, k], self.x[i, j, k]))
+                        self.maps[k].draw_line(
+                            self.x[i - 1, j, k], self.x[i - 1, j, k])
+                        for s in intersections[0]:
+                            if len(s) != 0:
+                                print(s)
+                                print(prev_int[k])
+                                if not(s[0] in self.intersections):
+                                    if prev_int[k] >= 35:
+                                        self.intersections = np.vstack(
+                                            (self.intersections, s))
+                                prev_int[k] = 0
+                        if len(intersections[0]) == 0:
+                            prev_int[k] += 1
+
                     # print(self.curve.H(5j, 5))
                     # if i % 1000 == 0:
                     # if i % 1000 == 0:

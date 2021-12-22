@@ -47,8 +47,13 @@ class path_map():
             n = int((y1 * i / (2 * s) + y2 * (1 - i / (2 * s))) * self.res[1])
             if m >= 0 and m < self.res[0] and n >= 0 and n < self.res[1]:
                 if self.mapping[m, n] != 0:
-                    intersections.append([(m, n)])
+                    if (m, n) != self.new_index(z1):
+                        intersections.append((m, n))
         return intersections
+
+    def get_coordinates(self, ind):
+        return self.x_lim[0] + ind[0] * self.res_x + 1j * (
+            self.y_lim[0] + ind[1] * self.res_y)
 
     def show_map(self, filename="map"):
         fig = plt.figure(figsize=(15, 10), dpi=200)
