@@ -1,12 +1,12 @@
 import sw_curve as sw
 import diffeq as dq
 import moebius as mb
+import mapper as mp
 
 # Python libraries
 import numpy as np
 import sympy as sym
 import matplotlib.pyplot as plt
-import map as mp
 
 
 class path():
@@ -32,6 +32,7 @@ class network():
         # self.path_x = np.array([])
         # self.path_y_i = np.array([])
         # self.path_y_j = np.array([])
+        self.time = np.array([0 for i in range(self.steps)])
         self.x = np.array([[[0j for k in range(3)]
                             for j in range(len(self.curve.branch_points))]
                            for i in range(self.steps)])
@@ -45,6 +46,8 @@ class network():
                              for i in range(self.steps)])
 
     def start_paths(self, n=0):
+        self.time[0] = 0
+        self.time[1] = self.dt
         for j in range(len(self.curve.branch_points)):
             rts_dict = sym.roots(
                 (self.curve.d_y*self.curve.H_sym).subs(
@@ -161,6 +164,7 @@ class network():
         for k in range(3):
             new_index[k] = self.maps[k].new_index(self.x[2, 0, k])
         for i in range(2, steps):
+            self.time[i] = self.time[i - 1] + self.dt
             for j in range(len(self.curve.branch_points)):
                 for k in range(3):
                     x = self.x[i - 1, j, k]
